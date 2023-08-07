@@ -10,6 +10,9 @@
 #include <opencv2/imgproc.hpp>
 #pragma comment(lib, "Gdi32.lib")
 
+//before usage here is how it works
+//this bot draws the colors
+
 
 using namespace std;
 using namespace cv;
@@ -31,6 +34,7 @@ int movecursorfast(int ix, int iy, POINT PV, int Psize) {
             iy = iy - Psize;
         }
         SetCursorPos(ix, iy);
+        Sleep(1);
         j = j + 1;
         if ((ix == PV.x) && (iy == PV.y)) { return 0; }
         if (j == 100) { return 0; }
@@ -67,15 +71,15 @@ int main()
             {"purple",{{0,192},{1,0},{2,255}}},{"rose",{{0,255},{1,62},{2,212}}},{"blue",{{0,0},{1,120},{2,255}}},
             {"lightblue",{{0,0},{1,222},{2,255}}},{"white",{{0,255},{1,255},{2,255}}},
             {"black",{{0,42},{1,42},{2,42}}} };
-    string path = "sus.png";
+    string path = "xmen5.jpg";
     Mat img = imread(path);
     rotate(img, img, ROTATE_90_CLOCKWISE); //rotating the image becasue of a problem in my code (will paint images rotated in the wrong direction)
     imshow("nonmod", img);
     Vec3b black = { 0,0,0 };
-    int x = 102, XD, XM;               //so basically this program puts a chess board theme on any image but it will help me in the auto painetr project
+    int x = 500, XD, XM;               //so basically this program puts a chess board theme on any image but it will help me in the auto painetr project
     XD = (img.rows) / x; //div        //x is the number of lines and y is the number of colloms
     XM = (img.rows) % x; //mod        //currently i tested it on 2 pictures and it works (102,102)
-    int y = 102, YD, YM;
+    int y = 500, YD, YM;
     YD = (img.cols) / y; //div
     YM = (img.cols) % y; //mod
     int b = 1, a = 0, e = 0, d = 1;
@@ -94,14 +98,14 @@ int main()
 
     vector<POINT> Vgreen; vector<POINT> Vyellow; vector<POINT> Vorange; vector<POINT> Vred; vector<POINT> Vpurple; vector<POINT> Vrose;
     vector<POINT> Vblue; vector<POINT> Vlightblue; vector<POINT> Vwhite; vector<POINT> Vblack;
-    map<string, vector<POINT>> VDICT{ {"green",Vgreen},{"yellow",Vyellow} ,{"orange",Vorange} ,{"red",Vred} ,{"purple",Vpurple}, 
+    map<string, vector<POINT>> VDICT{ {"green",Vgreen},{"yellow",Vyellow} ,{"orange",Vorange} ,{"red",Vred} ,{"purple",Vpurple},
     {"rose",Vrose},{"blue",Vblue} ,{"lightblue",Vlightblue} ,{"white",Vwhite} ,{"black",Vblack} }; // a dictionary contains  keys :color name
-                                                                                                  //valuez:vectors that contain coclor positions in agario paint screen
+    //valuez:vectors that contain coclor positions in agario paint screen
     map<string, POINT> DCOLOAGAR;  //dictionary with agario color positions
-    CP.x = 360; CP.y = 290; DCOLOAGAR["green"] = CP; CP.x = 434; CP.y = 290; DCOLOAGAR["yellow"] = CP; CP.x = 360; CP.y = 364; DCOLOAGAR["orange"] = CP;
-    CP.x = 434; CP.y = 364; DCOLOAGAR["red"] = CP; CP.x = 434; CP.y = 436; DCOLOAGAR["rose"] = CP; CP.x = 360; CP.y = 436; DCOLOAGAR["purple"] = CP;
-    CP.x = 360; CP.y = 509; DCOLOAGAR["blue"] = CP; CP.x = 434; CP.y = 509; DCOLOAGAR["lightblue"] = CP;
-    CP.x = 360; CP.y = 583; DCOLOAGAR["white"] = CP; CP.x = 434; CP.y = 583; DCOLOAGAR["black"] = CP;
+    CP.x = 528; CP.y = 362; DCOLOAGAR["green"] = CP; CP.x = 594; CP.y = 362; DCOLOAGAR["yellow"] = CP; CP.x = 528; CP.y = 436; DCOLOAGAR["orange"] = CP;
+    CP.x = 594; CP.y = 436; DCOLOAGAR["red"] = CP; CP.x = 594; CP.y = 510; DCOLOAGAR["rose"] = CP; CP.x = 528; CP.y = 510; DCOLOAGAR["purple"] = CP;
+    CP.x = 528; CP.y = 588; DCOLOAGAR["blue"] = CP; CP.x = 594; CP.y = 588; DCOLOAGAR["lightblue"] = CP;
+    CP.x = 528; CP.y = 661; DCOLOAGAR["white"] = CP; CP.x = 594; CP.y = 661; DCOLOAGAR["black"] = CP;
     map<string, POINT> DCOLOMSPAINT;  //dictionary with mspaint color positions
     CP.x = 1012; CP.y = 60; DCOLOMSPAINT["green"] = CP; CP.x = 989; CP.y = 60; DCOLOMSPAINT["yellow"] = CP; CP.x = 967; CP.y = 60; DCOLOMSPAINT["orange"] = CP;
     CP.x = 946; CP.y = 61; DCOLOMSPAINT["red"] = CP; CP.x = 946; CP.y = 83; DCOLOMSPAINT["rose"] = CP; CP.x = 1076; CP.y = 61; DCOLOMSPAINT["purple"] = CP;
@@ -112,26 +116,61 @@ int main()
     CP.x = 466; CP.y = 811; DCOLOSKRIBBL["red"] = CP; CP.x = 631; CP.y = 810; DCOLOSKRIBBL["rose"] = CP; CP.x = 610; CP.y = 839; DCOLOSKRIBBL["purple"] = CP;
     CP.x = 585; CP.y = 814; DCOLOSKRIBBL["blue"] = CP; CP.x = 561; CP.y = 813; DCOLOSKRIBBL["lightblue"] = CP;
     CP.x = 416; CP.y = 810; DCOLOSKRIBBL["white"] = CP; CP.x = 416; CP.y = 835; DCOLOSKRIBBL["black"] = CP;
-    int Psize = 5;
-    int IXagar = 538;
-    int Xagario=538, Yagario=728;
+    int Psize = 1;
+    int IXagar = 702;
+    int Xagario = 702, Yagario = 776;
     POINT Pagario;
+    map<string, int> TempColorFinder;
+    int MaxCV;
+    String Cstring;
     for (int ii = 0; ii < y; ii++) {             //buffers for every color that contains color positions in agario painting screen
         if (XM == 0) { b = 0; }            //initilazing b if XM=0 because if i dont i could be in situations were (img.rows<(i+1)*XD+b) wich results in a error
         if (YM == 0) { d = 0; }
         for (int i = 0; i < x; i++) {
             for (int r = i * XD + a; r < (i + 1) * XD + b; r++) {
                 for (int c = ii * YD + e; c < (ii + 1) * YD + d; c++) {
-                    B = B + img.at<Vec3b>(r, c)[0];
-                    G = G + img.at<Vec3b>(r, c)[1];
-                    R = R + img.at<Vec3b>(r, c)[2];
-                    S = S + 1;
+                    B = img.at<Vec3b>(r, c)[0];
+                    G = img.at<Vec3b>(r, c)[1];
+                    R = img.at<Vec3b>(r, c)[2];
+                    TempColorFinder.clear();
+                    X = 999;
+                    //S = S + 1;
+                    for (int iii = 0; iii < 49; iii++) {
+
+
+                        A = abs(ccord[iii][0] - R) + abs(ccord[iii][1] - G) + abs(ccord[iii][2] - B);
+                        if (A < X) {
+                            X = A;
+                            C = iii;
+
+
+
+                        }
+
+                    }
+                    if (((R == G) && (G == B)) && (R < 120)) {
+                        C = 9;
+                    }
+                    if (((R == G) && (G == B)) && (R > 120)) {
+                        C = 8;
+                    }
+                    TempColorFinder[cname[C]] = TempColorFinder[cname[C]] + 1;
+
                 }
             }
-
+            MaxCV = 1;
+            for (auto [Key, Value] : TempColorFinder) {
+                if (Value >= MaxCV) {
+                    MaxCV = Value;
+                    Cstring = Key;
+                }
+            }
+            /*
             B = B / S;
             G = G / S;
             R = R / S;
+            */
+            /*
             S = 0;
             X = 999;
             for (int iii = 0; iii < 49; iii++) {
@@ -153,13 +192,14 @@ int main()
             if (((R == G) && (G == B)) && (R > 120)) {
                 C = 8;
             }
+            */
             Pagario.x = Xagario;
             Pagario.y = Yagario;
-            VDICT[cname[C]].push_back(Pagario);
+            VDICT[Cstring].push_back(Pagario);
             Xagario = Xagario + Psize;
-            R = CD[cname[C]][0];
-            G = CD[cname[C]][1];
-            B = CD[cname[C]][2];
+            R = CD[Cstring][0];
+            G = CD[Cstring][1];
+            B = CD[Cstring][2];
 
             for (int r = i * XD + a; r < (i + 1) * XD + b; r++) {
                 for (int c = ii * YD + e; c < (ii + 1) * YD + d; c++) {
@@ -179,16 +219,19 @@ int main()
         Yagario = Yagario - Psize;
         Xagario = IXagar;
 
-        
+
     }
     imshow("mod", img);
+    waitKey(0);
+
 
 
     POINT OVX;
-    cout << img.rows << "x" << img.cols;
-    for (auto [Key, Value] : VDICT) {  
+    //cout << img.rows << "x" << img.cols;
+    for (auto [Key, Value] : VDICT) {
         while (true) {
             if (GetAsyncKeyState(VK_NUMPAD5)) {
+                Sleep(100);
                 SetCursorPos(DCOLOAGAR[Key].x, DCOLOAGAR[Key].y);    //this system press the color icon on the painting program
                 INPUT input = { 0 };
                 input.type = INPUT_MOUSE;
@@ -199,29 +242,40 @@ int main()
                 SendInput(1, &input, sizeof(input));
                 Sleep(900);
                 int ix = IXagar;
-                int iy = 728;
+                int iy = 776;
                 for (int i = 0; i < Value.size(); i++) {
+                    /*
                     if ((i!=0)&&(Value[i].y != Value[i - 1].y)) {
-                        if (((Value[i].x - IXagar)+(1053- Value[i-1].x)) < (abs(Value[i].x - ix))) {
-                            OVX.x = 1053; OVX.y = Value[i].y;
-                            movecursorfast(ix, iy, OVX, Psize);
+                        if (((Value[i].x - IXagar)+(1215 - Value[i-1].x)) < (abs(Value[i].x - ix))) {
+                            OVX.x = 1215; OVX.y = Value[i].y;
+
                             SetCursorPos(IXagar,Value[i].y);
+                            Sleep(1);
                             ix = IXagar;
                             iy = Value[i].y;
                         }
-                 
-                    }
-                    movecursorfast(ix, iy, Value[i], Psize);
+
+                    }*/
+
+                    SetCursorPos(Value[i].x, Value[i].y);
+                    Sleep(1);
+                    //movecursorfast(ix, iy, Value[i], Psize);
                     ix = Value[i].x;
                     iy = Value[i].y;
                     input = { 0 };
                     input.type = INPUT_MOUSE;
                     input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-                    SendInput(1, &input, sizeof(input));    
+                    SendInput(1, &input, sizeof(input));
                     input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
                     SendInput(1, &input, sizeof(input));
                     if (GetAsyncKeyState(VK_NUMPAD0)) {
                         return 0;
+                    }
+                    if (GetAsyncKeyState(VK_NUMPAD4)) {
+                        break;
+                    }
+                    if (GetAsyncKeyState(VK_NUMPAD7)) {
+                        Sleep(20000);
                     }
 
                 }
@@ -230,6 +284,12 @@ int main()
             }
             if (GetAsyncKeyState(VK_NUMPAD0)) {
                 return 0;
+            }
+            if (GetAsyncKeyState(VK_NUMPAD9)) {
+                POINT P;
+                GetCursorPos(&P);
+                //cout << "x:" << P.x << "y" << P.y;
+                Sleep(100);
             }
 
         }
@@ -243,5 +303,5 @@ int main()
     //https://www.youtube.com/watch?v=2FYm3GOonhk&ab_channel=Murtaza%27sWorkshop-RoboticsandAI
 
 
-   
+
 }
