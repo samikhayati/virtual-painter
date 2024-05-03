@@ -19,7 +19,6 @@ using namespace cv;
 
 
 int movecursorfast(int ix, int iy, POINT PV, int Psize) {
-    int j = 0;
     while (true) {
         if (ix < PV.x) {
             ix = ix + Psize;
@@ -35,15 +34,27 @@ int movecursorfast(int ix, int iy, POINT PV, int Psize) {
         }
         SetCursorPos(ix, iy);
         Sleep(1);
-        j = j + 1;
+        if ((max(PV.x - ix, ix - PV.x) < Psize) && (max(PV.y - iy, iy - PV.y) < Psize)) {
+            SetCursorPos(PV.x, PV.y);
+            return 0;
+        }
+
         if ((ix == PV.x) && (iy == PV.y)) { return 0; }
-        if (j == 100) { return 0; }
+
         if (GetAsyncKeyState(VK_NUMPAD0)) {
             return 0;
         }
     }
 
 
+}
+
+void cursorwhencolorchanges(int ix, int iy, int Psize) {
+    while (iy >= 300) {
+        iy = iy - Psize;
+        SetCursorPos(ix, iy);
+        Sleep(1);
+    }
 }
 
 
@@ -71,7 +82,7 @@ int main()
             {"purple",{{0,192},{1,0},{2,255}}},{"rose",{{0,255},{1,62},{2,212}}},{"blue",{{0,0},{1,120},{2,255}}},
             {"lightblue",{{0,0},{1,222},{2,255}}},{"white",{{0,255},{1,255},{2,255}}},
             {"black",{{0,42},{1,42},{2,42}}} };
-    string path = "xmen5.jpg";
+    string path = "Agario_wolf.webp";
     Mat img = imread(path);
     rotate(img, img, ROTATE_90_CLOCKWISE); //rotating the image becasue of a problem in my code (will paint images rotated in the wrong direction)
     imshow("nonmod", img);
@@ -123,6 +134,8 @@ int main()
     map<string, int> TempColorFinder;
     int MaxCV;
     String Cstring;
+    vector<String> Cvector;
+    vector<POINT> Pvector;
     for (int ii = 0; ii < y; ii++) {             //buffers for every color that contains color positions in agario painting screen
         if (XM == 0) { b = 0; }            //initilazing b if XM=0 because if i dont i could be in situations were (img.rows<(i+1)*XD+b) wich results in a error
         if (YM == 0) { d = 0; }
@@ -195,7 +208,8 @@ int main()
             */
             Pagario.x = Xagario;
             Pagario.y = Yagario;
-            VDICT[Cstring].push_back(Pagario);
+            Cvector.push_back(Cstring);
+            Pvector.push_back(Pagario);
             Xagario = Xagario + Psize;
             R = CD[Cstring][0];
             G = CD[Cstring][1];
@@ -222,80 +236,120 @@ int main()
 
     }
     imshow("mod", img);
-    waitKey(0);
+    //waitKey(0);
 
 
 
     POINT OVX;
+    String tempcolor = "";
+    bool mousedown = false;
+    int mousecount = 0;
+    INPUT input = { 0 };
     //cout << img.rows << "x" << img.cols;
-    for (auto [Key, Value] : VDICT) {
-        while (true) {
-            if (GetAsyncKeyState(VK_NUMPAD5)) {
-                Sleep(100);
-                SetCursorPos(DCOLOAGAR[Key].x, DCOLOAGAR[Key].y);    //this system press the color icon on the painting program
-                INPUT input = { 0 };
-                input.type = INPUT_MOUSE;
-                input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-                SendInput(1, &input, sizeof(input));
-                Sleep(100);
-                input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
-                SendInput(1, &input, sizeof(input));
-                Sleep(900);
-                int ix = IXagar;
-                int iy = 776;
-                for (int i = 0; i < Value.size(); i++) {
-                    /*
-                    if ((i!=0)&&(Value[i].y != Value[i - 1].y)) {
-                        if (((Value[i].x - IXagar)+(1215 - Value[i-1].x)) < (abs(Value[i].x - ix))) {
-                            OVX.x = 1215; OVX.y = Value[i].y;
+    while (1) {
+        if (GetAsyncKeyState(VK_NUMPAD5)) {
+            for (int i = 1; i < Cvector.size(); i++) {
+                if (i == 1) {
+                    SetCursorPos(Pvector[i - 1].x, Pvector[i - 1].y);
+                }
 
-                            SetCursorPos(IXagar,Value[i].y);
-                            Sleep(1);
-                            ix = IXagar;
-                            iy = Value[i].y;
-                        }
-
-                    }*/
-
-                    SetCursorPos(Value[i].x, Value[i].y);
+                if (Cvector[i] != tempcolor) {
+                    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                    SendInput(1, &input, sizeof(input));
+                    mousecount = 0;
+                    mousedown = false;
                     Sleep(1);
-                    //movecursorfast(ix, iy, Value[i], Psize);
-                    ix = Value[i].x;
-                    iy = Value[i].y;
+                    OVX.x = DCOLOAGAR[Cvector[i]].x;
+                    OVX.y = DCOLOAGAR[Cvector[i]].y;
+                    movecursorfast(Pvector[i - 1].x, Pvector[i - 1].y, OVX, 100);
                     input = { 0 };
                     input.type = INPUT_MOUSE;
                     input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
                     SendInput(1, &input, sizeof(input));
                     input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
                     SendInput(1, &input, sizeof(input));
-                    if (GetAsyncKeyState(VK_NUMPAD0)) {
-                        return 0;
-                    }
-                    if (GetAsyncKeyState(VK_NUMPAD4)) {
-                        break;
-                    }
-                    if (GetAsyncKeyState(VK_NUMPAD7)) {
-                        Sleep(20000);
-                    }
+                    tempcolor = Cvector[i];
+                    OVX.x = Pvector[i].x + 50;
+                    OVX.y = Pvector[i].y - 50;
+                    movecursorfast(DCOLOAGAR[Cvector[i]].x, DCOLOAGAR[Cvector[i]].y, OVX, 100);
+                    Sleep(1);
 
                 }
-                break;
+                else {
+                    if (Pvector[i].y != Pvector[i - 1].y) {
+                        input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                        SendInput(1, &input, sizeof(input));
+                        mousedown = false;
+                        Sleep(1);
+                        OVX.x = Pvector[i].x + 50;
+                        OVX.y = Pvector[i].y - 50;
+                        movecursorfast(Pvector[i - 1].x, Pvector[i - 1].y, OVX, 100);
+
+                    }
+                }
+                SetCursorPos(Pvector[i].x, Pvector[i].y);
+                if (mousedown == false) {
+                    Sleep(1);
+                    input = { 0 };
+                    input.type = INPUT_MOUSE;
+                    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                    SendInput(1, &input, sizeof(input));
+                    mousedown = true;
+
+                }
+                else {
+                    if ((mousecount % 50 == 0) && (mousecount != 0)) {
+                        mousecount = mousecount + 1;
+                        Sleep(1);
+                        input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                        SendInput(1, &input, sizeof(input));
+                        input = { 0 };
+                        input.type = INPUT_MOUSE;
+                        input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                        SendInput(1, &input, sizeof(input));
+
+
+                    }
+                    else if (mousecount <= 10) {
+                        Sleep(1);
+                        mousecount = mousecount + 1;
+                    }
+
+                    else {
+                        mousecount = mousecount + 1;
+
+                        for (int j = i + 1; j < i + 11; j++) {
+                            if (Cvector[j] != tempcolor) {
+                                Sleep(1);
+                                break;
+                            }
+                        }
+                    }
+
+
+
+
+
+                }
+
+
+                if (GetAsyncKeyState(VK_NUMPAD7)) {
+                    Sleep(50000);
+                }
 
             }
-            if (GetAsyncKeyState(VK_NUMPAD0)) {
-                return 0;
-            }
-            if (GetAsyncKeyState(VK_NUMPAD9)) {
-                POINT P;
-                GetCursorPos(&P);
-                //cout << "x:" << P.x << "y" << P.y;
-                Sleep(100);
-            }
+
 
         }
+        if (GetAsyncKeyState(VK_NUMPAD0)) {
+            return 0;
+        }
+
+
 
     }
-    waitKey(0);
+
+
     return 0;
 
     Sleep(500);
